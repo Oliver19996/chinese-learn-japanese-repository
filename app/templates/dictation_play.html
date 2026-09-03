@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ lesson.title_zh }} · 听写{% endblock %}
+{% block header %}
+<a class="text-btn" href="/dictation">课程</a>
+{% endblock %}
+{% block content %}
+<div id="play"
+     data-lesson="{{ lesson.id }}"
+     data-items='{{ lesson["items"] | tojson }}'>
+  <p class="progress" id="progress">1 / {{ lesson["items"]|length }}</p>
+  <button type="button" class="btn wide" id="listen">播放</button>
+  <form id="form" class="dict-form">
+    <label for="answer">写下你听到的日语</label>
+    <input id="answer" name="answer" type="text" lang="ja" autocomplete="off" placeholder="写下你听到的日语">
+    <button type="submit" class="btn">提交</button>
+  </form>
+  <article class="card" id="result" hidden></article>
+  <button type="button" class="btn ghost" id="next" hidden>下一题</button>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/dictation.js"></script>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ lesson.title_zh }} · 跟读{% endblock %}
+{% block header %}
+<a class="text-btn" href="/shadowing">课程</a>
+{% endblock %}
+{% block content %}
+<div id="play"
+     data-lesson="{{ lesson.id }}"
+     data-items='{{ lesson["items"] | tojson }}'>
+  <p class="progress" id="progress">1 / {{ lesson["items"]|length }}</p>
+  <article class="card line-card">
+    <p class="ja" id="ja"></p>
+    <p class="reading" id="reading"></p>
+    <p class="zh" id="zh"></p>
+  </article>
+  <div class="speeds" id="speeds">
+    <button type="button" data-rate="0.7">0.7×</button>
+    <button type="button" class="is-on" data-rate="1">1.0×</button>
+    <button type="button" data-rate="1.2">1.2×</button>
+  </div>
+  <div class="play-actions">
+    <button type="button" class="btn" id="play-model">播放示范</button>
+    <button type="button" class="btn mic-hold" id="record">按住跟读</button>
+    <button type="button" class="btn ghost" id="play-me">你的声音</button>
+    <button type="button" class="btn ghost" id="compare">对照</button>
+  </div>
+  <p class="score" id="score" hidden></p>
+  <div class="nav-row">
+    <button type="button" class="btn ghost" id="prev">上一句</button>
+    <button type="button" class="btn" id="next">下一句</button>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/shadowing.js"></script>
+{% endblock %}

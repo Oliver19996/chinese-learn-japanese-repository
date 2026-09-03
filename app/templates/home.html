@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">给中文母语者的日语口语课</p>
+  <h1>用声音学会日常日语</h1>
+  <p class="lede">说话、查词、跟读、听写。打开手机就能练。</p>
+</section>
+
+<article class="card phrase">
+  <p class="card-kicker">今日一句</p>
+  <p class="ja"><ruby>{{ phrase_ja }}<rt>{{ phrase_reading }}</rt></ruby></p>
+  <p class="zh">{{ phrase_zh }}</p>
+</article>
+
+<div class="grid-cards">
+  <a class="feature" href="/conversation">
+    <strong>会话</strong>
+    <span>用声音和 AI 练习日常对话</span>
+  </a>
+  <a class="feature" href="/dictionary">
+    <strong>查词</strong>
+    <span>日语或中文，马上看读音和例句</span>
+  </a>
+  <a class="feature" href="/shadowing">
+    <strong>跟读</strong>
+    <span>听一句，马上模仿</span>
+  </a>
+  <a class="feature" href="/dictation">
+    <strong>听写</strong>
+    <span>听音频，写下你听到的日语</span>
+  </a>
+</div>
+
+<section class="stats card" id="stats">
+  <p class="card-kicker">今日学习</p>
+  <ul>
+    <li><b id="stat-turns">0</b><span>会话回合</span></li>
+    <li><b id="stat-shadow">0</b><span>跟读完成</span></li>
+    <li><b id="stat-dict">0</b><span>听写答对</span></li>
+  </ul>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+  Hanashi.api("/api/stats").then((data) => {
+    document.getElementById("stat-turns").textContent = data.conversation_turns;
+    document.getElementById("stat-shadow").textContent = data.shadowing_done;
+    document.getElementById("stat-dict").textContent = data.dictation_correct;
+  }).catch(() => {});
+</script>
+{% endblock %}

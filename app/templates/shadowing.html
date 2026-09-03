@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}跟读 · 日语会话{% endblock %}
+{% block content %}
+<h1 class="page-title">跟读</h1>
+<p class="lede">听一句日语，马上跟着说。</p>
+<div class="stack">
+  {% for lesson in lessons %}
+  <a class="lesson-card" href="/shadowing/{{ lesson.id }}">
+    <strong>{{ lesson.title_zh }}</strong>
+    <span>{{ lesson.title_ja }} · {{ lesson['items']|length }} 句</span>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}听写 · 日语会话{% endblock %}
+{% block content %}
+<h1 class="page-title">听写</h1>
+<p class="lede">听音频，写下你听到的日语。</p>
+<div class="stack">
+  {% for lesson in lessons %}
+  <a class="lesson-card" href="/dictation/{{ lesson.id }}">
+    <strong>{{ lesson.title_zh }}</strong>
+    <span>{{ lesson.title_ja }} · {{ lesson['items']|length }} 题</span>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

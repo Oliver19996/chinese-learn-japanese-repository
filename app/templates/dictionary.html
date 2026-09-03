@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}查词 · 日语会话{% endblock %}
+{% block content %}
+<form class="search" id="search-form">
+  <input id="q" type="search" placeholder="输入日语或中文，如 食べる / 吃饭" enterkeyhint="search">
+  <button type="submit" aria-label="搜索">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+  </button>
+</form>
+<p class="hint" id="status">先从常用词开始，比如「食べる」「電車」。</p>
+<div id="results" class="stack"></div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/dictionary.js"></script>
+{% endblock %}

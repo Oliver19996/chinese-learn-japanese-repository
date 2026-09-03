@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}会话 · 日语会话{% endblock %}
+{% block main_class %}is-chat{% endblock %}
+{% block header %}
+<button class="text-btn" id="new-chat" type="button">新对话</button>
+{% endblock %}
+{% block content %}
+<div class="chips" id="scenes" role="tablist">
+  <button class="chip is-on" data-scene="cafe" type="button">咖啡店</button>
+  <button class="chip" data-scene="station" type="button">车站</button>
+  <button class="chip" data-scene="convenience" type="button">便利店</button>
+  <button class="chip" data-scene="restaurant" type="button">餐厅</button>
+  <button class="chip" data-scene="greeting" type="button">初次见面</button>
+  <button class="chip" data-scene="shopping" type="button">购物</button>
+  <button class="chip" data-scene="directions" type="button">问路</button>
+  <button class="chip" data-scene="free" type="button">自由聊天</button>
+</div>
+<div class="log" id="log" aria-live="polite"></div>
+<div class="composer">
+  <form class="text-row" id="text-form">
+    <input id="text-input" type="text" enterkeyhint="send" placeholder="也可以输入日语…" autocomplete="off">
+    <button type="submit" class="send">发送</button>
+  </form>
+  <button class="mic" id="mic" type="button" aria-label="按住说话">
+    <span class="mic-wave" aria-hidden="true"></span>
+    按住说话
+  </button>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/conversation.js"></script>
+{% endblock %}
