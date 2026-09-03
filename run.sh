@@ -11,4 +11,4 @@ if [ ! -f .env ]; then
 fi
 python scripts/seed.py
 python scripts/make_assets.py
-exec uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+exec uvicorn app.main:app --host 0.0.0.0 --port "${PORT:-8000}"

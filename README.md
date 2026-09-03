@@ -6,6 +6,38 @@
 
 ## 启动 / 起動
 
+### macOS で VS Code を閉じても起動する
+
+macOS の制限により、プロジェクトを `Desktop`、`Documents`、`Downloads` 配下に置いたままではバックグラウンドサービスから起動できません。`~/Projects/chinese-learn-japanese` などへ移動してから、移動先で次を実行してください。
+
+ターミナルで一度だけ実行すると、macOS のログイン時にアプリを自動起動し、VS Code を閉じても動き続けます。
+
+```bash
+./scripts/install_mac_service.sh
+```
+
+ローカル URL は `http://127.0.0.1:8000` です。サービスを停止する場合：
+
+```bash
+launchctl bootout "gui/$(id -u)" "$HOME/Library/LaunchAgents/com.hanashi.app.plist"
+```
+
+スマホなど外部から HTTPS で使う場合は、先に `brew install cloudflared` を実行してからインストールスクリプトを再実行してください。公開 URL は `sharing_url` に自動保存されます。Quick Tunnel の URL は再起動時に変わることがあります。
+
+### GitHub 経由で Streamlit Cloud に公開する
+
+1. このプロジェクトを GitHub リポジトリへ push します。`.env` は push しません。
+2. [Streamlit Community Cloud](https://share.streamlit.io/) で GitHub リポジトリを選びます。
+3. `Main file path` に `streamlit_app.py` を指定して Deploy します。
+4. アプリ設定の `Secrets` に次を登録します。
+
+```toml
+OPENAI_API_KEY = "sk-..."
+OPENAI_BASE_URL = "https://api.openai.com/v1"
+```
+
+Streamlit 版ではホーム、会話、辞書、シャドーイング、ディクテーションを利用できます。音声入出力と端末ごとの進捗保存が必要な場合は、既存の FastAPI 版を Railway などへデプロイしてください。
+
 在项目文件夹 `chinese-learn-japanese` 下执行（VS Code 的终端也一样）：
 
 ```bash
