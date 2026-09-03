@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from typing import Any
 
 from app.schemas import ConversationLLMOut, DictionaryItem, RubyToken
 from app.services.openai_client import OpenAIError, chat
+
+logger = logging.getLogger(__name__)
 
 SCENES = {
     "cafe": "咖啡店",
@@ -189,7 +192,13 @@ def reply_conversation(scene: str, user_text: str, history: list[dict[str, str]]
         raw = chat(messages)
         data = _parse_json(raw)
         return ConversationLLMOut.model_validate(data)
-    except (OpenAIError, json.JSONDecodeError, ValueError):
+    except OpenAIError as exc:
+        logger.error("OpenAI conversation request failed: %s", exc)
+        if str(exc) == "missing_key":
+            return fallback_turn(user_text, scene)
+        raise
+    except (json.JSONDecodeError, ValueError) as exc:
+        logger.error("OpenAI conversation response was invalid: %s", exc)
         return fallback_turn(user_text, scene)
 
 
