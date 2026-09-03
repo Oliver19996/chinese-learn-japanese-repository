@@ -173,7 +173,7 @@ def fallback_turn(user_text: str, scene: str) -> ConversationLLMOut:
         correction_note_zh=None,
         reply_ja=opening.reply_ja,
         reply_ja_ruby=opening.reply_ja_ruby,
-        reply_zh="（演示模式）请在 .env 填入 OPENAI_API_KEY 后，即可获得真实对话。",
+        reply_zh="AI応答を取得できませんでした。もう一度お試しください。",
         new_words=[],
     )
 
@@ -199,7 +199,19 @@ def reply_conversation(scene: str, user_text: str, history: list[dict[str, str]]
         raise
     except (json.JSONDecodeError, ValueError) as exc:
         logger.error("OpenAI conversation response was invalid: %s", exc)
-        return fallback_turn(user_text, scene)
+        retry_messages = [
+            *messages,
+            {
+                "role": "system",
+                "content": "前の応答を無視し、指定されたJSON形式だけで正しく回答してください。",
+            },
+        ]
+        try:
+            data = _parse_json(chat(retry_messages, temperature=0.2))
+            return ConversationLLMOut.model_validate(data)
+        except (json.JSONDecodeError, ValueError) as retry_exc:
+            logger.error("OpenAI conversation retry response was invalid: %s", retry_exc)
+            return fallback_turn(user_text, scene)
 
 
 def explain_word(query: str) -> DictionaryItem | None:

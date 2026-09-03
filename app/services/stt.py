@@ -28,5 +28,8 @@ def speech_to_text(audio_bytes: bytes, content_type: str = "") -> str | None:
         return ""
     try:
         return transcribe(audio_bytes, guess_filename(content_type), content_type)
-    except OpenAIError:
+    except OpenAIError as exc:
+        if str(exc) == "missing_key":
+            return None
+        raise
         return None

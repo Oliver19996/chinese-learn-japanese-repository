@@ -16,6 +16,7 @@ from app.schemas import (
     ConversationTurnOut,
 )
 from app.services.llm import opening_for, reply_conversation
+from app.services.openai_client import OpenAIError
 from app.services.stt import speech_to_text
 from app.services.tts import synthesize
 
@@ -86,7 +87,10 @@ async def turn(
     if audio is not None:
         data = await audio.read()
         if data:
-            heard = speech_to_text(data, audio.content_type or "")
+            try:
+                heard = speech_to_text(data, audio.content_type or "")
+            except OpenAIError:
+                raise AppError("音声認識に失敗しました。APIキー、通信状態、音声形式を確認してください。") from None
             if heard is None and not spoken:
                 raise AppError("语音识别未配置。请先填写 API 密钥，或改用键盘输入。")
             if heard == "" and not spoken:
