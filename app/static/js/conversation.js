@@ -47,6 +47,14 @@
     log.scrollTop = log.scrollHeight;
   }
 
+  async function playAi(text, audioUrl) {
+    if (audioUrl && !audioUrl.endsWith("placeholder.wav")) {
+      const audio = await Hanashi.play(audioUrl);
+      if (audio) return;
+    }
+    Hanashi.speak(text);
+  }
+
   async function start() {
     log.innerHTML = "";
     const wait = thinking();
@@ -59,7 +67,7 @@
       sessionId = data.session_id;
       wait.remove();
       addAi(data.opening_ja, data.opening_ruby, data.opening_zh, data.audio_url);
-      if (data.audio_url) Hanashi.play(data.audio_url);
+      playAi(data.opening_ja, data.audio_url);
     } catch (err) {
       wait.remove();
       Hanashi.toast(err.message);
@@ -80,7 +88,7 @@
       wait.remove();
       addMe(data.learner_transcript, data.correction, data.correction_note_zh);
       addAi(data.reply_ja, data.reply_ja_ruby, data.reply_zh, data.audio_url);
-      if (data.audio_url) Hanashi.play(data.audio_url);
+      playAi(data.reply_ja, data.audio_url);
     } catch (err) {
       wait.remove();
       Hanashi.toast(err.message);

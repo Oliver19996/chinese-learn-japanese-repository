@@ -129,13 +129,23 @@ const Hanashi = (() => {
     audio.playbackRate = rate;
     return audio.play().then(() => audio).catch(() => {
       toast("无法播放音频。");
-      return audio;
+      return null;
     });
+  }
+
+  function speak(text, rate = 1) {
+    if (!window.speechSynthesis || !text) return Promise.resolve(false);
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "ja-JP";
+    utterance.rate = rate;
+    window.speechSynthesis.speak(utterance);
+    return Promise.resolve(true);
   }
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/sw.js").catch(() => {});
   }
 
-  return { deviceId, toast, api, rubyHtml, escapeHtml, holdRecord, play };
+  return { deviceId, toast, api, rubyHtml, escapeHtml, holdRecord, play, speak };
 })();
