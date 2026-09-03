@@ -113,7 +113,9 @@ SCENE_OPENINGS = {
 
 SYSTEM_PROMPT = """あなたは日本語の会話相手兼コーチです。学習者は中国語を母語とする初中級者です。
 ルール:
-- 場面設定を守る。優しい日本人の友人として、ですます調で1〜2文だけ返す。
+- 場面設定を守る。優しい日本人の友人として、自然な長さの2〜3文で返す。
+- 学習者の入力が質問でない場合は、返答の最後に会話を続ける自然な質問を必ず1つ入れる。
+- 学習者の入力が質問の場合も、答えたあと必要なら相手への質問を1つ返し、会話を終わらせない。
 - 学習者の発話が不自然なら否定せず、自然な日本語に直してから会話を続ける。
 - 中国語で会話を続けない。日本語で返し、中国語は訳欄だけ。
 - 助詞（は/が、に/で、を）やテ形の補足は必要なとき一言だけ中国語で。
@@ -124,7 +126,7 @@ SYSTEM_PROMPT = """あなたは日本語の会話相手兼コーチです。学�
   "learner_transcript": "学習者の発話（整形後の日本語）",
   "correction": null,
   "correction_note_zh": null,
-  "reply_ja": "AIの日本語返答。1〜2文。ですます。",
+    "reply_ja": "AIの日本語返答。自然な2〜3文。最後は必要に応じて相手への質問。ですます。",
   "reply_ja_ruby": [{"s": "今日", "r": "きょう"}, {"s": "は", "r": ""}],
   "reply_zh": "简体中文翻译",
   "new_words": [{"ja": "空", "reading": "そら", "zh": "天空"}]
@@ -156,6 +158,17 @@ def _parse_json(raw: str) -> dict[str, Any]:
     return json.loads(text)
 
 
+def _conversation_result(raw: str, user_text: str) -> ConversationLLMOut:
+    result = ConversationLLMOut.model_validate(_parse_json(raw))
+    ruby_text = "".join(token.s for token in result.reply_ja_ruby)
+    if result.reply_ja_ruby and ruby_text != result.reply_ja:
+        result.reply_ja_ruby = []
+    is_question = "?" in user_text or "？" in user_text or user_text.rstrip().endswith("か")
+    if not is_question and "?" not in result.reply_ja and "？" not in result.reply_ja:
+        raise ValueError("reply does not continue the conversation with a question")
+    return result
+
+
 def opening_for(scene: str) -> ConversationLLMOut:
     data = SCENE_OPENINGS.get(scene) or SCENE_OPENINGS["free"]
     return ConversationLLMOut(
@@ -166,14 +179,13 @@ def opening_for(scene: str) -> ConversationLLMOut:
 
 
 def fallback_turn(user_text: str, scene: str) -> ConversationLLMOut:
-    opening = opening_for(scene)
     return ConversationLLMOut(
         learner_transcript=user_text,
         correction=None,
         correction_note_zh=None,
-        reply_ja=opening.reply_ja,
-        reply_ja_ruby=opening.reply_ja_ruby,
-        reply_zh="AI応答を取得できませんでした。もう一度お試しください。",
+        reply_ja="そうなんですね。今日はどんな一日でしたか？",
+        reply_ja_ruby=[],
+        reply_zh="原来如此。今天过得怎么样？",
         new_words=[],
     )
 
@@ -190,8 +202,7 @@ def reply_conversation(scene: str, user_text: str, history: list[dict[str, str]]
 
     try:
         raw = chat(messages)
-        data = _parse_json(raw)
-        return ConversationLLMOut.model_validate(data)
+        return _conversation_result(raw, user_text)
     except OpenAIError as exc:
         logger.error("OpenAI conversation request failed: %s", exc)
         if str(exc) == "missing_key":
@@ -207,8 +218,7 @@ def reply_conversation(scene: str, user_text: str, history: list[dict[str, str]]
             },
         ]
         try:
-            data = _parse_json(chat(retry_messages, temperature=0.2))
-            return ConversationLLMOut.model_validate(data)
+            return _conversation_result(chat(retry_messages, temperature=0.2), user_text)
         except (json.JSONDecodeError, ValueError) as retry_exc:
             logger.error("OpenAI conversation retry response was invalid: %s", retry_exc)
             return fallback_turn(user_text, scene)

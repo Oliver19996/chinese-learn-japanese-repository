@@ -39,6 +39,8 @@ const Hanashi = (() => {
 
   function rubyHtml(tokens, fallback) {
     if (!tokens || !tokens.length) return escapeHtml(fallback || "");
+    const tokenText = tokens.map((t) => t.s || "").join("");
+    if (fallback && tokenText !== String(fallback)) return escapeHtml(fallback);
     return tokens
       .map((t) => {
         const s = escapeHtml(t.s || "");
